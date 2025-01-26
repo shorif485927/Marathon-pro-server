@@ -64,6 +64,18 @@ async function run() {
          res.send(result)
     })
 
+    app.delete('/addMarathon/:id' , async(req,res) => {
+       const id = req.params.id;
+       const query = {_id : new ObjectId(id)};
+       const result = await myMarathonCollection.deleteOne(query);
+       res.send(result)
+    })
+
+
+
+
+            // Marathon Register form start
+
     // post Marathon  register form
     app.post('/marathonRegisterForm', async(req , res) => {
         const newRegisterData = req.body;
@@ -77,6 +89,13 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/marathonRegisterForm/:id' , async(req,res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await registerdUserCollection.findOne(query);
+      res.send(result)
+    })
+
     // delete regigterd User data
     app.delete('/marathonRegisterForm/:id', async(req,res) => {
         const id = req.params.id;
@@ -85,11 +104,24 @@ async function run() {
         res.send(result)
     })
 
+  // update regigterd User data
 
+  app.patch('/marathonRegisterForm/:id' , async(req,res) => {
+        const id = req.params.id;
+        const body = req.body;
+        const query = {_id : new ObjectId(id)};
 
-
-
-
+        const update = {
+           $set : {
+            firstName : body.firstName,
+            lastName : body.lastName,
+            contactNumber : body.contactNumber,
+            additionlInfo : body.additionlInfo
+           }
+        }
+        const result = await registerdUserCollection.updateOne(query,update);
+        res.send(result)
+  })
 
 
 
