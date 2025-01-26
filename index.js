@@ -37,6 +37,7 @@ async function run() {
 
     // 
     const myMarathonCollection = client.db('marathonDb').collection('marathon');
+    const marathonRegisterCollection = client.db('marathonRegister').collection('register')
 
 
 // post addMarathon Data
@@ -54,7 +55,7 @@ async function run() {
            res.send(result)
     })
 
-    // get single Marathon daata
+    // get single Marathon data
     app.get('/addMarathon/:id', async(req, res) => {
        const id = req.params.id;
         const query = {_id : new ObjectId(id)}
@@ -62,6 +63,13 @@ async function run() {
 
          res.send(result)
     })
+
+    // post Marathon  register form
+    app.post('/marathonRegisterForm', async(req , res) => {
+        const newRegisterData = req.body;
+        const result = await  marathonRegisterCollection.insertOne(newRegisterData);
+        res.send(result) 
+    }) 
 
 
 
