@@ -37,7 +37,7 @@ async function run() {
 
     // 
     const myMarathonCollection = client.db('marathonDb').collection('marathon');
-    const marathonRegisterCollection = client.db('marathonRegister').collection('register')
+    const registerdUserCollection = client.db('marathonRegister').collection('register')
 
 
 // post addMarathon Data
@@ -67,16 +67,23 @@ async function run() {
     // post Marathon  register form
     app.post('/marathonRegisterForm', async(req , res) => {
         const newRegisterData = req.body;
-        const result = await  marathonRegisterCollection.insertOne(newRegisterData);
+        const result = await  registerdUserCollection.insertOne(newRegisterData);
         res.send(result) 
     }) 
 
     app.get('/marathonRegisterForm', async(req,res) => {
-      const cursor = marathonRegisterCollection.find();
+      const cursor = registerdUserCollection.find();
       const result = await cursor.toArray();
       res.send(result)
     })
 
+    // delete regigterd User data
+    app.delete('/marathonRegisterForm/:id', async(req,res) => {
+        const id = req.params.id;
+        const query = {_id : new ObjectId(id)};
+        const result = await registerdUserCollection.deleteOne(query);
+        res.send(result)
+    })
 
 
 
