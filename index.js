@@ -71,6 +71,12 @@ async function run() {
         res.send(result) 
     }) 
 
+    app.get('/marathonRegisterForm', async(req,res) => {
+      const cursor = marathonRegisterCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
 
 
 
