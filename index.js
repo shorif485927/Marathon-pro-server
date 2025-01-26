@@ -71,10 +71,30 @@ async function run() {
        res.send(result)
     })
 
+    app.patch('/addMarathon/:id', async(req,res) => {
+            const id = req.params.id;
+            const body  = req.body;
+            const query = {_id : new ObjectId(id)};
+
+            const update = {
+              $set : {
+                 title : body.title,
+                 registrationStart : body.registrationStart,
+                 registrationEnd : body.registrationEnd,
+                 marathonStart : body.marathonStart ,
+                 location :  body.location ,
+                 photourl :  body.photoUrl
+              }
+            }
+
+            const result = await myMarathonCollection.updateOne(query,update);
+            res.send(result)
+    })
 
 
 
-            // Marathon Register form start
+
+            //! Marathon Register form start
 
     // post Marathon  register form
     app.post('/marathonRegisterForm', async(req , res) => {
