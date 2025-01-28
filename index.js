@@ -1,14 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 
 // middleware
-app.use(cors())
+app.use(cors({
+   origin : ['http://localhost:5173'],
+   credentials : true
+}))
 app.use(express.json())
+app.use(cookieParser())
 
 
 
@@ -39,6 +45,29 @@ async function run() {
     const myMarathonCollection = client.db('marathonDb').collection('marathon');
     const registerdUserCollection = client.db('marathonRegister').collection('register')
 
+    // AUTH related api 
+
+    app.post('/jwt', (req,res) => {
+       const user = req.body;
+       const token = jwt.sign(user, process.env.ACCES_TOKEN_SECRET , {expiresIn : '10h'})
+
+       res.cookie('token', token , {
+         httpOnly : true,
+         secure : false
+       })
+       .send({success : true})
+    })
+
+    app.post('/logout', (req,res) => {
+         res.clearCookie('token',{
+          httpOnly : true,
+          secure : false
+         })
+         .send({logout : successfully})
+    })
+
+
+
 
 // post addMarathon Data
     app.post('/addMarathon', async(req,res) => {
@@ -55,13 +84,21 @@ async function run() {
            res.send(result)
     })
 
-    // get single Marathon data
+
     app.get('/addMarathon/:id', async(req, res) => {
        const id = req.params.id;
         const query = {_id : new ObjectId(id)}
        const result = await myMarathonCollection.findOne(query);
 
          res.send(result)
+    })
+
+    // get data using email query
+    app.get('/addMarathon' , async(req,res) => {
+       const email = req.query.email;
+       const query = {Email : email};
+       const result = await myMarathonCollection.find(query).toArray();
+       res.send(result)
     })
 
     app.delete('/addMarathon/:id' , async(req,res) => {
@@ -91,7 +128,7 @@ async function run() {
             res.send(result)
     })
 
-
+``
 
 
             //! Marathon Register form start
