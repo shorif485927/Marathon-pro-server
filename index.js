@@ -10,17 +10,38 @@ require('dotenv').config()
 
 // middleware
 app.use(cors({
-   origin : ['http://localhost:5173'],
-   credentials : true
+   origin : [
+    'http://localhost:5173',  
+    
+    'https://marathon-pro-e98da.firebaseapp.com',
+    
+    'https://marathon-pro-e98da.web.app' 
+  ],
+   
+    credentials : true
 }))
 app.use(express.json())
 app.use(cookieParser())
 
+const verifyToken = (req, res , next) => {
+       const token  = req.cookies.token; 
+        
+       if(!token){
+        return res.status(401).send({meassage : 'unauthorized acces'})
+       }
+      //  verify token
+      jwt.verify(token, process.env.ACCES_TOKEN_SECRET ,(err,decoded) => {
+        if(err) {
+           return res.status(403).send({meassage : 'invalid token '})
+        }
 
+        next()
 
-// mongodb 
-// 
-// 
+      })
+        
+
+}
+
 
 
 
@@ -38,7 +59,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
 
     // 
@@ -49,11 +70,11 @@ async function run() {
 
     app.post('/jwt', (req,res) => {
        const user = req.body;
-       const token = jwt.sign(user, process.env.ACCES_TOKEN_SECRET , {expiresIn : '10h'})
+       const token = jwt.sign(user, process.env.ACCES_TOKEN_SECRET , {expiresIn : '20h'})
 
        res.cookie('token', token , {
          httpOnly : true,
-         secure : false
+         secure : process.env.NODE_ENV === 'production'
        })
        .send({success : true})
     })
@@ -61,9 +82,9 @@ async function run() {
     app.post('/logout', (req,res) => {
          res.clearCookie('token',{
           httpOnly : true,
-          secure : false
+          secure : process.env.NODE_ENV === 'production'
          })
-         .send({logout : successfully})
+         .send({logout : true})
     })
 
 
@@ -128,7 +149,7 @@ async function run() {
             res.send(result)
     })
 
-``
+
 
 
             //! Marathon Register form start
@@ -140,7 +161,7 @@ async function run() {
         res.send(result) 
     }) 
 
-    app.get('/marathonRegisterForm', async(req,res) => {
+    app.get('/marathonRegisterForm', verifyToken, async(req,res) => {   
       const cursor = registerdUserCollection.find();
       const result = await cursor.toArray();
       res.send(result)
@@ -183,8 +204,8 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
